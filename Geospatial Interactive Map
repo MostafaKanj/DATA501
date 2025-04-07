@@ -1,0 +1,76 @@
+import pandas as pd
+import folium
+from folium.plugins import TimestampedGeoJson
+from IPython.display import IFrame
+
+# Load the dataset
+file_path = "C:\\Users\\Musta\\OneDrive\\Desktop\\UofC\\STAT423\\simulated_data_feb17.csv"
+df = pd.read_csv(file_path)
+
+# Convert timestamp column to datetime
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+# Ensure data is sorted by timestamp for animation
+df = df.sort_values(by="timestamp")
+
+# Create a folium map
+m = folium.Map(location=[df.Latitude_SV.mean(), df.Longitude_SV.mean()], zoom_start=6)
+
+# Function to create geojson data for a specific variable
+def create_geojson(variable, color):
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": []
+    }
+    for _, row in df.iterrows():
+        geojson_data["features"].append({
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [row.Longitude_SV, row.Latitude_SV]},
+            "properties": {
+                "time": row.timestamp.isoformat(),
+                "popup": f"Time: {row.timestamp}<br>{variable}: {row[variable]:.2f}",
+                "icon": "circle",
+                "iconstyle": {
+                    "color": color,
+                    "fillColor": color,
+                    "radius": 5
+                }
+            },
+        })
+    return geojson_data
+
+# Create timestamped geojson layers for different variables
+variables = {"Temperature": "red", "Salinity": "blue"}
+timestamped_layers = {}
+
+default_variable = "Temperature"
+
+for variable, color in variables.items():
+    geojson_data = create_geojson(variable, color)
+    timestamped_layer = TimestampedGeoJson(
+        geojson_data,
+        period="PT5M",
+        add_last_point=True,
+        auto_play=True,
+        loop=True,
+    )
+    timestamped_layers[variable] = timestamped_layer
+
+# Add only the default layer initially
+timestamped_layers[default_variable].add_to(m)
+
+# Add layer control to toggle layers
+layer_control = folium.LayerControl()
+layer_control.add_to(m)
+
+# Save Folium Map
+folium_map_path = "geospatial_time_series_map.html"
+m.save(folium_map_path)
+print("Folium map saved as 'geospatial_time_series_map.html'")
+
+# Display in Jupyter Notebook (if applicable)
+def display_map_in_notebook():
+    print("Displaying Folium Map in Notebook:")
+    display(IFrame(folium_map_path, width=800, height=600))
+
+display_map_in_notebook()
