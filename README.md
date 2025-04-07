@@ -1,4 +1,4 @@
-This repository contains the dataset and the python code required to create a "Geospatial Interactive Map"
+This repository contains the dataset and the python code required to create a "Geospatial Map"
 The map is for a UofC DATA501 course project.
 
 To get the map:
@@ -9,3 +9,9 @@ To get the map:
 5) Run the code
 
 Once this is done, your system will open an html page that pinpoints the sargassum location on a world map
+
+The code requires the following imports:
+1) pandas
+2) folium
+3) TimestampedGeoJson from folium.plugins
+4) IFrame from IPython.display
