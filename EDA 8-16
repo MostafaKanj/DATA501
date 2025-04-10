@@ -1,0 +1,35 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+df = pd.read_csv("C:\\Users\\Musta\\OneDrive\\Desktop\\UofC\\STAT423\\simulated_data_feb17.csv")
+
+# Convert timestamp to datetime
+df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+# Define groups of variables for plotting
+eda_variables = {
+    'Current Velocity': ['Current_Velocity_U', 'Current_Velocity_V'],
+    'Tidal Velocity': ['Tidal_Velocity_U', 'Tidal_Velocity_V'],
+    'Wind Velocity': ['Wind_Velocity_U', 'Wind_Velocity_V'],
+    'Wave Velocity': ['Wave_Velocity'],
+    'Coriolis Effect': ['Coriolis_Effect_U', 'Coriolis_Effect_V'],
+    'Temperature': ['Temperature'],
+    'Density': ['Density'],
+    'Oxygen Level': ['Oxygen_Level'],
+    'Contamination': ['Contamination']
+}
+
+# Plot each group of variables over time
+for title, cols in eda_variables.items():
+    plt.figure(figsize=(14, 6))
+    for col in cols:
+        plt.plot(df['timestamp'], df[col], label=col)
+    plt.title(f'{title} Over Time')
+    plt.xlabel('Timestamp')
+    plt.ylabel('Value')
+    plt.legend()
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
