@@ -1,0 +1,42 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load your CSV file
+file_path = "C:\\Users\\Musta\\OneDrive\\Desktop\\UofC\\STAT423\\simulated_data_feb17.csv"
+df = pd.read_csv(file_path)
+
+# Convert timestamp to datetime
+df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+# Apply 10-point moving average
+df["Oxygen_Level_Smoothed"] = df["Oxygen_Level"].rolling(window=10, center=True).mean()
+
+# Plotting the original and smoothed values
+plt.figure(figsize=(12, 6))
+plt.plot(df["timestamp"], df["Oxygen_Level"], label="Original", alpha=0.5)
+plt.plot(df["timestamp"], df["Oxygen_Level_Smoothed"], label="Smoothed (10-point MA)", linewidth=2)
+plt.xlabel("Timestamp")
+plt.ylabel("Oxygen Level")
+plt.title("Oxygen Level Over Time with Moving Average Smoothing")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+
+df["Salinity_Smoothed"] = df["Salinity"].rolling(window=10, center=True).mean()
+
+# Plotting the original and smoothed values
+plt.figure(figsize=(12, 6))
+plt.plot(df["timestamp"], df["Salinity"], label="Original", alpha=0.5)
+plt.plot(df["timestamp"], df["Salinity_Smoothed"], label="Smoothed (10-point MA)", linewidth=2)
+plt.xlabel("Timestamp")
+plt.ylabel("Salinity")
+plt.title("Salinity Over Time with Moving Average Smoothing")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
