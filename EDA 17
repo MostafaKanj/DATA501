@@ -1,0 +1,42 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Create the data
+data = {
+    "Variable": [
+        "Current_Velocity_U", "Current_Velocity_V",
+        "Tidal_Velocity_U", "Tidal_Velocity_V",
+        "Wind_Velocity_U", "Wind_Velocity_V",
+        "Wave_Velocity", "Coriolis_Effect_U", "Coriolis_Effect_V"
+    ],
+    "Latitude_Satellite": [
+        0.001991, 0.002235,
+        0.000715, -0.002726,
+        -0.001817, 0.001738,
+        0.000778, -0.001771, 0.002093
+    ],
+    "Longitude_Satellite": [
+        -0.004090, 0.001743,
+        0.002853, -0.001875,
+        0.000483, 0.002099,
+        -0.001280, -0.001422, -0.003663
+    ]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# Plot
+plt.figure(figsize=(10, 6))
+bar_width = 0.4
+x = range(len(df))
+
+plt.bar([i - bar_width/2 for i in x], df["Latitude_Satellite"], width=bar_width, label="Latitude_Satellite")
+plt.bar([i + bar_width/2 for i in x], df["Longitude_Satellite"], width=bar_width, label="Longitude_Satellite")
+
+plt.xticks(ticks=x, labels=df["Variable"], rotation=45, ha="right")
+plt.ylabel("Correlation Coefficient")
+plt.title("Correlation with Satellite Latitude and Longitude")
+plt.legend()
+plt.tight_layout()
+plt.show()
