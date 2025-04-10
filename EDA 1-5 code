@@ -1,0 +1,86 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+from scipy.signal import welch
+from scipy.stats import pearsonr
+import numpy as np
+
+# Load the dataset
+file_path = "C:\\Users\\Musta\\OneDrive\\Desktop\\UofC\\STAT423\\simulated_data_feb17.csv"
+dataset = pd.read_csv(file_path)
+
+# Convert 'timestamp' to datetime format
+dataset['timestamp'] = pd.to_datetime(dataset['timestamp'])
+
+# Drop unnecessary index column if present
+if 'Unnamed: 0' in dataset.columns:
+    dataset = dataset.drop(columns=['Unnamed: 0'])
+
+# Check for missing values
+missing_values = dataset.isnull().sum()
+
+# Normalize numerical features
+numerical_features = ['Current_Velocity_U', 'Current_Velocity_V', 'Tidal_Velocity_U', 
+                      'Tidal_Velocity_V', 'Wind_Velocity_U', 'Wind_Velocity_V', 
+                      'Wave_Velocity', 'Coriolis_Effect_U', 'Coriolis_Effect_V', 
+                      'Temperature', 'Salinity', 'Density', 'Oxygen_Level', 
+                      'Contamination', 'Latitude_SV', 'Longitude_SV']
+
+scaler = MinMaxScaler()
+dataset[numerical_features] = scaler.fit_transform(dataset[numerical_features])
+
+# Display dataset information
+print("Dataset Information:")
+dataset.info()
+print("\nMissing Values:\n", missing_values)
+print("\nDataset Head:\n", dataset.head())
+
+# EDA Step 1: Latitude and Longitude over Time
+plt.figure(figsize=(12, 6))
+plt.plot(dataset['timestamp'], dataset['Latitude_SV'], label='Latitude', color='blue')
+plt.plot(dataset['timestamp'], dataset['Longitude_SV'], label='Longitude', color='orange')
+plt.xlabel('Timestamp')
+plt.ylabel('Normalized Coordinates')
+plt.title('Latitude and Longitude Over Time')
+plt.legend()
+plt.xticks(rotation=45)
+plt.show()
+
+# EDA Step 2: Distribution of Numerical Features
+dataset[numerical_features].hist(bins=20, figsize=(12, 10), layout=(4, 4))
+plt.tight_layout()
+plt.show()
+
+# EDA Step 3: Correlation Heatmap
+plt.figure(figsize=(12, 8))
+corr_matrix = dataset.corr()
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
+plt.title('Correlation Heatmap')
+plt.show()
+
+# EDA Step 4: Trends in Environmental Variables
+plt.figure(figsize=(12, 6))
+plt.plot(dataset['timestamp'], dataset['Temperature'], label='Temperature', color='red', linestyle='dashed', alpha=0.8)
+plt.plot(dataset['timestamp'], dataset['Salinity'], label='Salinity', color='blue', linestyle='dashdot', alpha=0.8)
+plt.plot(dataset['timestamp'], dataset['Oxygen_Level'], label='Oxygen Level', color='green', linestyle='solid', alpha=0.8)
+plt.xlabel('Timestamp')
+plt.ylabel('Normalized Values')
+plt.title('Environmental Variables Over Time')
+plt.legend()
+plt.xticks(rotation=45)
+plt.show()
+
+
+# EDA Step 5: Scatter Plot of Wind vs. Drift Components
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='Wind_Velocity_U', y='Wind_Velocity_V', data=dataset, alpha=0.5)
+plt.xlabel('Wind Velocity U Component')
+plt.ylabel('Wind Velocity V Component')
+plt.title('Wind Velocity Components Scatter Plot')
+plt.show()
+
+
+
+
+
