@@ -1,6 +1,7 @@
 import pandas as pd
 import folium
 from folium.plugins import TimestampedGeoJson
+import webbrowser
 from IPython.display import IFrame
 
 # Load the dataset
@@ -13,64 +14,67 @@ df['timestamp'] = pd.to_datetime(df['timestamp'])
 # Ensure data is sorted by timestamp for animation
 df = df.sort_values(by="timestamp")
 
+# Combine SV and Satellite Data into One GeoJSON Layer
+geojson_data_combined = {
+    "type": "FeatureCollection",
+    "features": []
+}
+
+for _, row in df.iterrows():
+    # SV Data (Red)
+    geojson_data_combined["features"].append({
+        "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [row.Longitude_SV, row.Latitude_SV]},
+        "properties": {
+            "time": row.timestamp.isoformat(),
+            "popup": f"SV Time: {row.timestamp}<br>Temp: {row.Temperature:.2f}°C<br>Salinity: {row.Salinity:.2f}",
+            "icon": "circle",
+            "iconstyle": {
+                "color": "red",
+                "fillColor": "red",
+                "radius": 5
+            }
+        },
+    })
+
+    # Satellite Data (Green)
+    geojson_data_combined["features"].append({
+        "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [row.Longitude_Satellite, row.Latitude_Satellite]},
+        "properties": {
+            "time": row.timestamp.isoformat(),
+            "popup": f"Satellite Time: {row.timestamp}<br>Temp: {row.Temperature:.2f}°C",
+            "icon": "circle",
+            "iconstyle": {
+                "color": "green",
+                "fillColor": "green",
+                "radius": 5
+            }
+        },
+    })
+
 # Create a folium map
 m = folium.Map(location=[df.Latitude_SV.mean(), df.Longitude_SV.mean()], zoom_start=6)
 
-# Function to create geojson data for a specific variable
-def create_geojson(variable, color):
-    geojson_data = {
-        "type": "FeatureCollection",
-        "features": []
-    }
-    for _, row in df.iterrows():
-        geojson_data["features"].append({
-            "type": "Feature",
-            "geometry": {"type": "Point", "coordinates": [row.Longitude_SV, row.Latitude_SV]},
-            "properties": {
-                "time": row.timestamp.isoformat(),
-                "popup": f"Time: {row.timestamp}<br>{variable}: {row[variable]:.2f}",
-                "icon": "circle",
-                "iconstyle": {
-                    "color": color,
-                    "fillColor": color,
-                    "radius": 5
-                }
-            },
-        })
-    return geojson_data
+# Add TimestampedGeoJson
+TimestampedGeoJson(
+    geojson_data_combined,
+    period="PT5M",
+    add_last_point=True,
+    auto_play=True,
+    loop=True,
+).add_to(m)
 
-# Create timestamped geojson layers for different variables
-variables = {"Temperature": "red", "Salinity": "blue"}
-timestamped_layers = {}
-
-default_variable = "Temperature"
-
-for variable, color in variables.items():
-    geojson_data = create_geojson(variable, color)
-    timestamped_layer = TimestampedGeoJson(
-        geojson_data,
-        period="PT5M",
-        add_last_point=True,
-        auto_play=True,
-        loop=True,
-    )
-    timestamped_layers[variable] = timestamped_layer
-
-# Add only the default layer initially
-timestamped_layers[default_variable].add_to(m)
-
-# Add layer control to toggle layers
-layer_control = folium.LayerControl()
-layer_control.add_to(m)
-
-# Save Folium Map
+# Save and open only the Folium map
 folium_map_path = "geospatial_time_series_map.html"
 m.save(folium_map_path)
 print("Folium map saved as 'geospatial_time_series_map.html'")
+webbrowser.open(folium_map_path)
 
-# Display in Jupyter Notebook (if applicable)
-def display_map_in_notebook():
+# Optional: Display in Jupyter Notebook
+def display_maps_in_notebook():
     print("Displaying Folium Map in Notebook:")
     display(IFrame(folium_map_path, width=800, height=600))
 
-display_map_in_notebook()
+display_maps_in_notebook()
+
