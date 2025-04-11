@@ -22,3 +22,8 @@ In order to generate these graphs, follow the steps:
 1) download dataset (same dataset used for the geospatial map)
 2) EDA 1-5 file, for example, contains the code used to generate graphs 1 through 5. Download the Python code and run it
 3) The same can be done in order to generate the rest of the graphs
+
+Furthermore, this repository also contains the python codes that are used to run the simulation and prediction models.
+1) download dataset (same dataset used for the geospatial map)
+2) Simulation file: download code and run it in python
+3) Prediction Model file: download code and run it in python
